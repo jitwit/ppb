@@ -14,7 +14,6 @@
   (response-json
    (get (string-append "https://api.chess.com/pub/player/" who))))
 
-
 (define (player-stats who)
   (response-json
    (get (string-append "https://api.chess.com/pub/player/" who "/stats"))))
@@ -23,6 +22,10 @@
 (define (player-blitz-rating who)
   (let ((stats (player-stats who)))
     (lookup stats 'chess_blitz 'last)))
+
+(define (player-rapid-rating who)
+  (let ((stats (player-stats who)))
+    (lookup stats 'chess_rapid 'last)))
 
 (define (player-recent-games who)
   (define now (seconds->date (current-seconds)))
