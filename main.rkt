@@ -5,6 +5,7 @@
          "outils.rkt"
          "irc.rkt"
 
+         net/http-easy
          racket/async-channel)
 
 ;; hashtables of players rating, should have rating/rd
@@ -15,10 +16,9 @@
                    (lookup player-b 'rd)))
 
 (define *oauth-token*
-  (string-append "oauth:"
-                 (symbol->string
-                  (with-input-from-file "token.txt"
-                    read))))
+  (symbol->string
+   (with-input-from-file "token.txt"
+     read)))
 
 (define *username*
   (symbol->string
@@ -36,11 +36,13 @@
                  *username*
                  *username*
                  #:ssl 'auto
-                 #:password *oauth-token*))
+                 #:password (string-append "oauth:" *oauth-token*)))
   (sync ready)
   (set! C c)
   (set! I (irc-connection-incoming c))
   (display "connected to twitch yo") (newline)
+  (irc-send-command C "CAP REQ" ":twitch.tv/tags")
+  (irc-send-command C "CAP REQ" ":twitch.tv/membership")
   (irc-join-channel C (string-append "#" *username*)))
 
 (define (respond-to-message where what)
@@ -62,7 +64,7 @@
   (let loop ()
     (define message (async-channel-get I))
     (match message
-      ((irc-message _ "PRIVMSG" `(,where ,what)  _)
+      ((irc-message _ _ "PRIVMSG" `(,where ,what)  _)
        (thread
         (lambda ()
           (respond-to-message where what))))
