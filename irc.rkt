@@ -218,9 +218,9 @@
                 (length chunks))))
   (define trail
     (clean-trailing (string-join (drop chunks ix-trail))))
-  (if (zero? (string-length trail))
-      chunks
-      `(,@(take chunks ix-trail) ,trail)))
+  (if (non-empty-string? trail)
+      `(,@(take chunks ix-trail) ,trail)
+      chunks))
 
 ;; Run these via ``raco test main.rkt''
 (module+ test
