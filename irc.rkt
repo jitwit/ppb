@@ -204,39 +204,22 @@
                   (`(,k ,v) (cons (string->symbol k) v))
                   (_ #f)))
               (string-split (substring chunk 1) ";")))
-
 (define (parse-tags chunks)
   (match chunks
     (`(,(? message-tag-section? tags) ,chunks ...)
      (values (parse-tags-chunk tags) chunks))
     (_ (values #f chunks))))
 
-;; Given the list of param parts, return the list of params
-(define (parse-params parts)
-  (define first-tail-part (find-first-tail-part parts))
-  (cond [first-tail-part
-         (define tail-with-colon (string-join (list-tail parts first-tail-part)))
-         (define tail-param (if (string-prefix? tail-with-colon ":")
-                                (substring tail-with-colon 1)
-                                tail-with-colon))
-         (append (take parts first-tail-part)
-                 (list tail-param))]
-        [else parts]))
-
-;; Return the index of the first part that starts the tail parameters; of #f if no tail exists
-(define (find-first-tail-part param-parts)
-  (define first-colon-index (memf/index (lambda (v) (string-prefix? v ":"))
-                                        param-parts))
-  (cond [(or first-colon-index (> (length param-parts) 14))
-         (min 14 (if first-colon-index first-colon-index 14))]
-        [else #f]))
-
-;; Like memf, but returns the index of the first item to satisfy proc instead of
-;; the list starting at that item.
-(define (memf/index proc lst)
-  (define memf-result (memf proc lst))
-  (cond [memf-result (- (length lst) (length memf-result))]
-        [else #f]))
+(define (clean-trailing trail)
+  (cond ((zero? (string-length trail)) '())
+        ((string-prefix? trail ":") (list (substring trail 1)))
+        (else (list trail))))
+(define (parse-params chunks)
+  (define ix-colon
+    (let ((ix (index-where chunks message-prefix-section?)))
+      (min 14 (or ix (length chunks)))))
+  `(,@(take chunks ix-colon)
+    ,@(clean-trailing (string-join (drop chunks ix-colon)))))
 
 ;; Run these via ``raco test main.rkt''
 (module+ test
