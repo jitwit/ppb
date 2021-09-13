@@ -211,15 +211,16 @@
     (_ (values #f chunks))))
 
 (define (clean-trailing trail)
-  (cond ((zero? (string-length trail)) '())
-        ((string-prefix? trail ":") (list (substring trail 1)))
-        (else (list trail))))
+  (if (string-prefix? trail ":") (substring trail 1) trail))
 (define (parse-params chunks)
-  (define ix-colon
-    (let ((ix (index-where chunks message-prefix-section?)))
-      (min 14 (or ix (length chunks)))))
-  `(,@(take chunks ix-colon)
-    ,@(clean-trailing (string-join (drop chunks ix-colon)))))
+  (define ix-trail
+    (min 14 (or (index-where chunks message-prefix-section?)
+                (length chunks))))
+  (define trail
+    (clean-trailing (string-join (drop chunks ix-trail))))
+  (if (zero? (string-length trail))
+      chunks
+      `(,@(take chunks ix-trail) ,trail)))
 
 ;; Run these via ``raco test main.rkt''
 (module+ test
