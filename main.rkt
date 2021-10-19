@@ -6,7 +6,8 @@
          web-server/servlet-env
          xml
          
-         "irc.rkt")
+         "irc.rkt"
+         "outils.rkt")
 
 (define pieces.names
   '((p . "black pawn")
@@ -60,9 +61,6 @@
 
 (define prioritized-pieces
   '(p n b r q k P N B R Q K))
-
-(define (swap a.b)
-  (cons (cdr a.b) (car a.b)))
 
 (define (remove-at name)
   (if (and (non-empty-string? name) (eqv? #\@ (string-ref name 0)))

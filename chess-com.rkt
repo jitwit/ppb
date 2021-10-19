@@ -20,7 +20,6 @@
   (response-json
    (get (string-append "https://api.chess.com/pub/player/" who "/stats"))))
 
-
 (define (player-blitz-rating who)
   (let ((stats (player-stats who)))
     (lookup stats 'chess_blitz 'last)))
