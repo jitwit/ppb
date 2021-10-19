@@ -2,13 +2,15 @@
 
 (require net/http-easy
          racket/format
-         "outils.rkt")
+         "outils.rkt"
+         "glicko.rkt")
 
 (provide player-profile
          player-stats
          player-blitz-rating
          player-recent-games
-         recent-games-between)
+         recent-games-between
+         expected-score)
 
 (define (player-profile who)
   (response-json
@@ -55,3 +57,10 @@
   (filter (lambda (game)
             (game-is-between? game player-a player-b))
           games))
+
+;; hashtables of players rating, should have rating/rd
+(define (expected-score player-a player-b)
+  (glicko-expected (lookup player-a 'rating)
+                   (lookup player-a 'rd)
+                   (lookup player-b 'rating)
+                   (lookup player-b 'rd)))
