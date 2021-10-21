@@ -174,6 +174,19 @@
      (lambda ()
        (system (format "python3 moves.py ~a" (string-join moves)))))))
 
+(define (print-answer-key pigs ids)
+  (display (pgn-key/val 'Event "Guess the Piggy: KEY"))
+  (display "{") (newline)
+  (for-each (lambda (p id j)
+              (display (format "    piggy numéro ~a: ~a~%"
+                               (+ 1 j)
+                               p))
+              (display (format "    https://www.chess.com/game/live/~a~%" id)))
+            pigs ids (range (length pigs)))
+  (display "}")
+  (newline)
+  (newline))
+
 (define (guess-the-piggy pigs game-ids output-file)
   (let* ((n (length pigs))
          (ordering (shuffle (range n)))
@@ -191,13 +204,18 @@
                     (newline) (newline) (newline))
                   pigs
                   game-ids
-                  (range n))))))
+                  (range n))
+        (print-answer-key pigs game-ids)))))
 
 (define (test)
   (guess-the-piggy '("jingoringo"
                      "SpennyThompson"
-                     "OvercastDelight")
+                     "OvercastDelight"
+                     "SleezyMcCheesy"
+                     "saltyclown")
                    '(21358832943
                      20882975645
-                     17806311519)
+                     17806311519
+                     5429044551
+                     10641996507)
                    "test.pgn"))
