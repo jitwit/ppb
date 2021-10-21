@@ -99,19 +99,25 @@
              (hash-ref table (car keys) (make-hash))
              (cdr keys))))
 
-(define (print-headers game)
+(define (print-headers game who nick)
   (define headers (lookup game 'game 'pgnHeaders))
   (define dr/dw (lookup game 'game 'ratingChangeWhite))
   (define dr/db (lookup game 'game 'ratingChangeBlack))
+  (define white (lookup headers 'White))
+  (define black (lookup headers 'Black))
   (display (pgn-key/val 'Event (lookup headers 'Event)))
   (display (pgn-key/val 'Site (lookup headers 'Site)))
   (display (pgn-key/val 'Date (lookup headers 'Date)))
-  (display (pgn-key/val 'White (lookup headers 'White)))
-  (display (pgn-key/val 'Black (lookup headers 'Black)))
+  (display (pgn-key/val 'White (if (equal? white who)
+                                   nick
+                                   white)))
+  (display (pgn-key/val 'Black (if (equal? black who)
+                                   nick
+                                   black)))
   (display (pgn-key/val 'Result (lookup headers 'Result)))
   ;; maybe don't show elo?
-  (display (pgn-key/val 'WhiteElo (lookup headers 'WhiteElo)))
-  (display (pgn-key/val 'BlackElo (lookup headers 'BlackElo)))
+  ;; (display (pgn-key/val 'WhiteElo (lookup headers 'WhiteElo)))
+  ;; (display (pgn-key/val 'BlackElo (lookup headers 'BlackElo)))
   (display (pgn-key/val 'WhiteRatingDiff dr/dw))
   (display (pgn-key/val 'BlackRatingDiff dr/db))
   (display (pgn-key/val 'TimeControl (lookup headers 'TimeControl)))
@@ -133,10 +139,10 @@
               (print-time t)
               (display " "))
             (lan->san moves)
-            (cdr times)))
+            (take times (length moves))))
 
-(define (print-game game)
-  (print-headers game)
+(define (print-game game who nick)
+  (print-headers game who nick)
   (newline)
   (print-moves game)
   (display (lookup game 'game 'pgnHeaders 'Result)))
@@ -165,10 +171,16 @@
 (define (test)
   (print-game
    (response-json
-    (get "https://www.chess.com/callback/live/game/28436995779"))))
+    (get "https://www.chess.com/callback/live/game/28436995779"))
+   "SpennyThompson"
+   "piggy no 1"))
 
 (define (lan->san moves)
   (string-split
    (with-output-to-string
      (lambda ()
        (system (format "python3 moves.py ~a" (string-join moves)))))))
+
+(define (guess-the-piggy pigs links)
+  (void))
+
