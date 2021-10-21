@@ -168,19 +168,36 @@
                 #:left-pad-string "0")
             (modulo n 10))))
 
-(define (test)
-  (print-game
-   (response-json
-    (get "https://www.chess.com/callback/live/game/28436995779"))
-   "SpennyThompson"
-   "piggy no 1"))
-
 (define (lan->san moves)
   (string-split
    (with-output-to-string
      (lambda ()
        (system (format "python3 moves.py ~a" (string-join moves)))))))
 
-(define (guess-the-piggy pigs links)
-  (void))
+(define (guess-the-piggy pigs game-ids output-file)
+  (let* ((n (length pigs))
+         (ordering (shuffle (range n)))
+         (pigs (map (curry list-ref pigs) ordering))
+         (game-ids (map (curry list-ref game-ids) ordering)))
+    ;; todo add key in comments?
+    (with-output-to-file output-file
+      (lambda ()
+        (for-each (lambda (pig id j)
+                    (define game
+                      (response-json
+                       (get (format "https://www.chess.com/callback/live/game/~a"
+                                    id))))
+                    (print-game game pig (format "piggy numéro ~a" (+ 1 j)))
+                    (newline) (newline) (newline))
+                  pigs
+                  game-ids
+                  (range n))))))
 
+(define (test)
+  (guess-the-piggy '("jingoringo"
+                     "SpennyThompson"
+                     "OvercastDelight")
+                   '(21358832943
+                     20882975645
+                     17806311519)
+                   "test.pgn"))
