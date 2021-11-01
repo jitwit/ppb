@@ -2,8 +2,6 @@
 
 (require racket/async-channel
          (except-in srfi/1 delete)
-         web-server/servlet
-         web-server/servlet-env
          xml
          
          "irc.rkt"
@@ -315,11 +313,22 @@
 (define (respond-to-message message)
   (write message) (newline)
   (match message
+    ;; respond to commands
     ((irc-message _ _ "PRIVMSG" `(,where ,what)  _)
      (define response
-       (response-message message))
+       ;; these are potential commands, so use the semaphore
+       (call-with-semaphore irl-semaphore
+                            (thunk (response-message message))))
      (when response
        (irc-send-message (twitch-connection) where response)))
+    ;; give shoutouts
+    ((irc-message tags _ "USERNOTICE" `(,where) _)
+     (match (assoc 'msg-id tags)
+       ('(msg-id . "raid")
+        (define response (format "!so ~a" (cdr (assoc 'display-name tags))))
+        (sleep 5) ;; so things don't seem too quick?
+        (irc-send-message (twitch-connection) where response))
+       (_ #f)))
     (_ (void))))
 
 ;; connect to twitch and grab connection in twitch-connection parameter
@@ -344,34 +353,8 @@
   (let loop ()
     (define message
       (async-channel-get (irc-connection-incoming (twitch-connection))))
-    (thread
-     (call-with-semaphore irl-semaphore
-                          (lambda ()
-                            (lambda ()
-                              (respond-to-message message)))))
+    (thread (thunk (respond-to-message message)))
     (loop)))
-
-(define (marbles-html-table)
-  `(html
-    (head (title "pp")
-          (body (table
-                 (thead (td "piece") (td "peep"))
-                 (tbody ,@(map (lambda (p.w)
-                                 `(tr (td ,(piece->string (car p.w)))
-                                      (td ,(cdr p.w))))
-                               (marbles-lineup))))))))
-
-(define (garcon request)
-  (response/xexpr
-   (marbles-html-table)))
-
-(define (main-to-be)
-  (boot)
-  (thread gogo)
-  (serve/servlet garcon
-               #:launch-browser? #f
-               #:servlet-path "/pp"
-               #:extra-files-paths (list (build-path "public"))))
 
 (define (main)
   (boot)
@@ -379,3 +362,4 @@
 
 ;; (main)
 ;; #(struct:irc-message #f "tmi.twitch.tv" "RECONNECT\r" () ":tmi.twitch.tv RECONNECT\r")
+
