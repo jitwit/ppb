@@ -2,8 +2,7 @@
 
 (require racket/async-channel
          (except-in srfi/1 delete)
-         xml
-         
+
          "irc.rkt"
          "outils.rkt")
 
@@ -172,7 +171,7 @@
     ("?leave" . "?leave -- quit marbles")
     ("?kick" . "?kick <user> -- (mod only) boot <user> from the game")
     ("?who" . "?who <piece> -- owner of <piece>, where <piece> is either in fen or in full (e.g. n for black knight, R2 for white rook2)")
-    ("?what" . "?what -- what piece do you have")
+    ("?what" . "?what [person] -- what piece you have or optionally ask what <person>'s piece is")
     ("?pieces" . "?pieces -- list of assigned pieces")
     ("?pieces-free" . "?pieces-free -- list of pieces not yet assigned")
     ("?lineup" . "?lineup -- pieces & people")
@@ -241,6 +240,15 @@
                       (and piece
                            (piece->string piece)))
               (format "@~a you are not in the current irl marbbies" who))))
+       (`("?what" ,pisser)
+        (let* ((pisser (remove-at pisser))
+               (piece (participant-piece pisser)))
+          (if piece
+              (format "~a has the ~a"
+                      pisser
+                      (and piece
+                           (piece->string piece)))
+              (format "~a is not in the current irl marbbies" pisser))))
        (`("?who" . ,args)
         (let* ((piece (arguments->piece args))
                (pig (lookup-piece piece)))
@@ -306,6 +314,7 @@
                     who command)))
        (`("?help")
         (format "@~a try \"?help <command>\" or \"?commands\"" who))
+       ('("!clawee") "what a shit app")
        (_ #f))) ;; unrecognized command/not applicable
     (_ #f))) ;; other types of messages
 
@@ -326,7 +335,7 @@
      (match (assoc 'msg-id tags)
        ('(msg-id . "raid")
         (define response (format "!so ~a" (cdr (assoc 'display-name tags))))
-        (sleep 5) ;; so things don't seem too quick?
+        (sleep 2) ;; so things don't seem too quick?
         (irc-send-message (twitch-connection) where response))
        (_ #f)))
     (_ (void))))
@@ -352,14 +361,30 @@
 (define (gogo)
   (let loop ()
     (define message
-      (async-channel-get (irc-connection-incoming (twitch-connection))))
+      (async-channel-get (irc-connection-incoming (twitch-connection)))) 
     (thread (thunk (respond-to-message message)))
     (loop)))
 
 (define (main)
-  (boot)
-  (gogo))
+  (let ((retry-interval 1))
+    (with-handlers ((exn:fail:network:errno?
+                     (lambda (err)
+                       (match err
+                         ((exn:fail:network:errno msg cont `(,errno . ,idk))
+                          (write msg)
+                          (newline))
+                         (_ (write "idk\n"))))))
+      
+      (boot)
+      (gogo))))
 
 ;; (main)
 ;; #(struct:irc-message #f "tmi.twitch.tv" "RECONNECT\r" () ":tmi.twitch.tv RECONNECT\r")
 
+; error reading from stream port
+;   system error: Connection reset by peer; errno=104
+
+; tcp-connect: host not found
+;   hostname: irc.chat.twitch.tv
+;   port number: 6697
+;   system error: Name or service not known; gai_err=-2
