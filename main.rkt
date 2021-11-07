@@ -210,36 +210,36 @@
                (result (add-participant who piece)))
           (match result
             ('ok
-             (format "@~a you have the ~a"
+             (format "~a you have the ~a"
                      who
                      (piece->string piece)))
             ('already-assigned
-             (format "@~a you already have a piece"
+             (format "~a you already have a piece"
                      who))
             ('marbles-full
-             (format "@~a marbbies is full"
+             (format "~a marbbies is full"
                      who)))))
        ('("?leave")
         (remove-participant who)
-        (format "@~a left the game" who))
+        (format "~a left the game" who))
        (`("?kick" ,pisser)
         (let ((pisser (remove-at pisser)))
           (cond ((or (is-moderator? message)
                      (is-room-owner? message)
                      (equal? pisser who))
                  (remove-participant pisser)
-                 (format "@~a left the game" pisser))
+                 (format "~a left the game" pisser))
                 (else
-                 (format "@~a only moderators or ~a can kick @~a"
+                 (format "~a only moderators or ~a can kick ~a"
                          who pisser pisser)))))
        ('("?what")
         (let ((piece (participant-piece who)))
           (if piece
-              (format "@~a you have the ~a"
+              (format "~a you have the ~a"
                       who
                       (and piece
                            (piece->string piece)))
-              (format "@~a you are not in the current irl marbbies" who))))
+              (format "~a you are not in the current irl marbbies" who))))
        (`("?what" ,pisser)
         (let* ((pisser (remove-at pisser))
                (piece (participant-piece pisser)))
@@ -249,11 +249,13 @@
                       (and piece
                            (piece->string piece)))
               (format "~a is not in the current irl marbbies" pisser))))
+       ('("?who")
+        (format "~a expecting a piece, e.g. \"?who black bishop\""))
        (`("?who" . ,args)
         (let* ((piece (arguments->piece args))
                (pig (lookup-piece piece)))
           (cond ((not (member piece pieces))
-                 (format "@~a, got \"~a\", expecting one of: ~a"
+                 (format "~a, got \"~a\", expecting one of: ~a"
                          who
                          (string-join args)
                          (string-join (append (map symbol->string pieces)
@@ -261,11 +263,11 @@
                                       ", ")))
                 (else
                  (if pig
-                     (format "@~a @~a has the ~a"
+                     (format "~a ~a has the ~a"
                              who
                              pig
                              (piece->string piece))
-                     (format "@~a the ~a isn't taken"
+                     (format "~a the ~a isn't taken"
                              who
                              (piece->string piece)))))))
        (`("?force" ,who)
@@ -275,45 +277,45 @@
                  (result (add-participant who piece)))
             (match result
               ('marbles-full
-               (format "@~a irl marbbies is full" who))
+               (format "~a irl marbbies is full" who))
               (_ #f)))))
        ('("?pieces")
-        (format "@~a ~a"
+        (format "~a ~a"
                 who
                 (string-join (map piece->string (assigned-pieces)) ", ")))
        ('("?pieces-free")
-        (format "@~a remaining pieces: ~a"
+        (format "~a remaining pieces: ~a"
                 who
                 (string-join (map piece->string (available-pieces)) ", ")))
        ('("?lineup")
-        (format "@~a the current lineup: ~a"
+        (format "~a the current lineup: ~a"
                 who
                 (string-join (map (lambda (p.w)
                                     (format "~a - ~a"
                                             (piece->string (car p.w))
                                             (cdr p.w)))
                                   (marbles-lineup))
-                             ", ")))
+                             " | ")))
        ('("?reset")
         (cond ((or (is-moderator? message)
                    (is-room-owner? message))
                (reset-marbles)
-               (format "irl marbles has been reset by @~a" who))
+               (format "irl marbles has been reset by ~a" who))
               (else
-               (format "@~a the command \"?reset\" is only available to moderators"
+               (format "~a the command \"?reset\" is only available to moderators"
                        who))))
        ('("?commands")
-        (format "@~a the commands are: ~a"
+        (format "~a the commands are: ~a"
                 who
                 (string-join (map car commands) ", ")))
        (`("?help" ,command)
         (define msg (assoc command commands))
         (if msg
-            (format "@~a ~a" who (cdr msg))
-            (format "@~a command not found: \"~a\". use \"?commands\" to see possible commands"
+            (format "~a ~a" who (cdr msg))
+            (format "~a command not found: \"~a\". use \"?commands\" to see possible commands"
                     who command)))
        (`("?help")
-        (format "@~a try \"?help <command>\" or \"?commands\"" who))
+        (format "~a try \"?help <command>\" or \"?commands\"" who))
        ('("!clawee") "what a shit app")
        (_ #f))) ;; unrecognized command/not applicable
     (_ #f))) ;; other types of messages
@@ -365,18 +367,23 @@
     (thread (thunk (respond-to-message message)))
     (loop)))
 
+(define (run-it retry-interval)
+  (with-handlers ((exn:fail:network:errno?
+                   (lambda (err)
+                     (match err
+                       ((exn:fail:network:errno msg cont `(,errno . ,idk))
+                        (write msg)
+                        (newline)
+                        (when (< retry-interval 10)
+                          (sleep retry-interval)
+                          (run-it (* retry-interval 2))))
+                       (_ (write "idk\n"))))))
+    
+    (boot)
+    (gogo)))
+
 (define (main)
-  (let ((retry-interval 1))
-    (with-handlers ((exn:fail:network:errno?
-                     (lambda (err)
-                       (match err
-                         ((exn:fail:network:errno msg cont `(,errno . ,idk))
-                          (write msg)
-                          (newline))
-                         (_ (write "idk\n"))))))
-      
-      (boot)
-      (gogo))))
+  (run-it 1))
 
 ;; (main)
 ;; #(struct:irc-message #f "tmi.twitch.tv" "RECONNECT\r" () ":tmi.twitch.tv RECONNECT\r")
