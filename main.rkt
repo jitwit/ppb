@@ -317,8 +317,26 @@
        (`("?help")
         (format "~a try \"?help <command>\" or \"?commands\"" who))
        ('("!clawee") "what a shit app")
+       ('("?mona") "spenny11Mona spenny11Mona spenny11Mona spenny11Mona spenny11Mona")
        (_ #f))) ;; unrecognized command/not applicable
     (_ #f))) ;; other types of messages
+
+(define (message-tag tag message)
+  (assoc tag (irc-message-tags message)))
+
+;; ;; "Want to become famous? Buy followers and viewers on bigfollows .com"
+(define (greeting-message message)
+  (match message
+    ((irc-message tags _ "PRIVMSG" `(,where ,what)  _)
+     (define who
+       (cdr (assq 'display-name (irc-message-tags message))))
+     (define first
+       (cdr (assq 'first-msg (irc-message-tags message))))
+     (and (equal? first "1")
+          (cond ((string-contains? what "bigfollows")
+                 "yes baby, give me fame and fortune")
+                (else (format "how do you do, ~a?" who)))))
+    (_ #f)))
 
 ;; respond to applicable messages
 (define (respond-to-message message)
@@ -330,8 +348,12 @@
        ;; these are potential commands, so use the semaphore
        (call-with-semaphore irl-semaphore
                             (thunk (response-message message))))
+     (define greeting
+       (greeting-message message))
      (when response
-       (irc-send-message (twitch-connection) where response)))
+       (irc-send-message (twitch-connection) where response))
+     (when greeting
+       (irc-send-message (twitch-connection) where greeting)))
     ;; give shoutouts
     ((irc-message tags _ "USERNOTICE" `(,where) _)
      (match (assoc 'msg-id tags)
