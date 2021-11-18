@@ -165,13 +165,12 @@
       (is-room-owner? message)))
 
 ;; list of commands
-;  ?watch (doesn't want to join...?) , (?freeze prevent further joins)
 (define commands
   '(("?play" . "?play -- join marbles")
     ("?leave" . "?leave -- quit marbles")
     ("?kick" . "?kick <user> -- (mod only) boot <user> from the game")
     ("?who" . "?who <piece> -- owner of <piece>, where <piece> is either in fen or in full (e.g. n for black knight, R2 for white rook2)")
-    ("?what" . "?what [person] -- what piece you have or optionally ask what <person>'s piece is")
+    ("?what" . "?what [person] -- what piece you have or optionally ask what [person]'s piece is")
     ("?pieces" . "?pieces -- list of assigned pieces")
     ("?pieces-free" . "?pieces-free -- list of pieces not yet assigned")
     ("?lineup" . "?lineup -- pieces & people")
@@ -291,7 +290,7 @@
         (format "~a the current lineup: ~a"
                 who
                 (string-join (map (lambda (p.w)
-                                    (format "~a - ~a"
+                                    (format "~a : ~a"
                                             (piece->string (car p.w))
                                             (cdr p.w)))
                                   (marbles-lineup))
@@ -317,7 +316,10 @@
        (`("?help")
         (format "~a try \"?help <command>\" or \"?commands\"" who))
        ('("!clawee") "what a shit app")
+       ('("?clawee") "what a shit app")
        ('("?mona") "spenny11Mona spenny11Mona spenny11Mona spenny11Mona spenny11Mona")
+       ('("?pronouns") "it/it")
+       ('("piss!play") "i adore piss!play")
        (_ #f))) ;; unrecognized command/not applicable
     (_ #f))) ;; other types of messages
 
@@ -379,7 +381,8 @@
   (irc-send-command c "CAP REQ" ":twitch.tv/commands")
   (irc-send-command c "CAP REQ" ":twitch.tv/tags")
   (irc-join-channel c (string-append "#" *username*))
-  (irc-join-channel c "#spennythompson"))
+  (irc-join-channel c "#spennythompson")
+  (irc-join-channel c "#gorey_hole"))
 
 ;; main loop
 (define (gogo)
@@ -399,7 +402,8 @@
                         (when (< retry-interval 10)
                           (sleep retry-interval)
                           (run-it (* retry-interval 2))))
-                       (_ (write "idk\n"))))))
+                       (_ (write "idk\n")))))
+                  )
     
     (boot)
     (gogo)))
