@@ -176,7 +176,8 @@
     ("?lineup" . "?lineup -- pieces & people")
     ("?reset" . "?reset -- (mod only) reset irl marbles")
     ("?help" . "?help <command> -- information about <command>")
-    ("?commands" . "?commands -- list of available commands. type ?help <command> to get information about <command>")))
+    ("?commands" . "?commands -- list of available commands. type ?help <command> to get information about <command>")
+    ("?adopt <elo-1> <elo-2> <n>" . "the probability that <elo-1> can adopt <elo-2> in a match of length <n>")))
 
 ;; take arguments to ?who command and figure out piece
 (define (arguments->piece args)
@@ -228,7 +229,7 @@
           (and elo1 elo2 match-length
                (integer? match-length)
                (<= 0 match-length 10000)
-               (format "adoption probability: ~a%"
+               (format "adoption probability: ~a"
                        (adoption elo1 elo2 match-length)))))
        (`("?kick" ,pisser)
         (let ((pisser (remove-at pisser)))
@@ -418,8 +419,14 @@
                         (when (< retry-interval 10)
                           (sleep retry-interval)
                           (run-it (* retry-interval 2))))
-                       (_ (write "idk\n"))))))
-    
+                       (_ (write "idk\n")))))
+                  ((const #t)
+                   (lambda (err)
+                     (write err)
+                     (newline)
+                     (when (< retry-interval 10)
+                       (sleep retry-interval)
+                       (run-it (* retry-interval 2))))))
     (boot)
     (gogo)))
 

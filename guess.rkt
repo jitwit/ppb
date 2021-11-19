@@ -4,7 +4,7 @@
          racket/format)
 
 (provide move-list->moves
-         example-game)
+         guess-the-piggy)
 
 ;; why t.f. ...? see
 ;; https://github.com/andyruwruw/chess-web-api/issues/10
@@ -77,15 +77,6 @@
 
 (define (move-list->moves str)
   (map byte->move (string->moves str)))
-
-(define eg1
-  "mCZRgv!Tbs2UlB92fm8!egYQCKRKBK7dfdTEcD5ZpxEKvKZKsC6LCwLkdlkyjryHmHQHac46c696DK2KlZ6YZ7!2wmWGnDKRgnYkiyHyryRInvXPoEkimsiq7tIz")
-
-(define eg2
-  "lBZJgvYQow6Lfo!Teg0SvFLUFU3Ubl5ZkA7Ydk86AISKjzKBabWOiy78lv90cDY7zH0IHQXQvB70BQ0SQKUMKZTZDuSRfd8KuBKSB2?8dJRYmu1ToxSRbdRJdJ872TYPJI6XT7P7xZ7ZkrXWyGMErPW4PO45IH5YHXY7XZ7ZOUZ0UE0REBRQGOQYOWYXByX4y84X8SX4SC4WCBWXBtX6tB6XuCXOnDOHDLHQLTQHBKHQKLQPCKPQKSQRT1R01~")
-
-(define example-game
-  (move-list->moves eg2))
 
 (define (pgn-key/val key val)
   (if (and val (not (hash? val)))
@@ -207,15 +198,4 @@
                   (range n))
         (print-answer-key pigs game-ids)))))
 
-(define (test)
-  (guess-the-piggy '("jingoringo"
-                     "SpennyThompson"
-                     "OvercastDelight"
-                     "SleezyMcCheesy"
-                     "saltyclown")
-                   '(21358832943
-                     20882975645
-                     17806311519
-                     5429044551
-                     10641996507)
-                   "test.pgn"))
+
