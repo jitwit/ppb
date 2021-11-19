@@ -221,6 +221,15 @@
        ('("?leave")
         (remove-participant who)
         (format "~a left the game" who))
+       (`("?adopt" ,elo1 ,elo2 ,match-length)
+        (let* ((elo1 (string->number elo1))
+               (elo2 (string->number elo2))
+               (match-length (string->number match-length)))
+          (and elo1 elo2 match-length
+               (integer? match-length)
+               (<= 0 match-length 10000)
+               (format "adoption probability: ~a%"
+                       (adoption elo1 elo2 match-length)))))
        (`("?kick" ,pisser)
         (let ((pisser (remove-at pisser)))
           (cond ((or (is-moderator? message)
@@ -340,6 +349,13 @@
                 (else (format "how do you do, ~a?" who)))))
     (_ #f)))
 
+(define (adoption x y m)
+  (with-output-to-string
+    (lambda ()
+      (system
+       (format "jconsole adoption.ijs -js \"exit 0 [ echo ~a (~a adopt) ~a\""
+               x m y)))))
+
 ;; respond to applicable messages
 (define (respond-to-message message)
   (write message) (newline)
@@ -402,8 +418,7 @@
                         (when (< retry-interval 10)
                           (sleep retry-interval)
                           (run-it (* retry-interval 2))))
-                       (_ (write "idk\n")))))
-                  )
+                       (_ (write "idk\n"))))))
     
     (boot)
     (gogo)))

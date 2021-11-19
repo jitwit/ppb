@@ -13,4 +13,3 @@ NB.
 
 NB. x m adopt y -- probability that x can adopt y in a match of m games.
 adopt =: {{ {: {. A&(+/ . *)^:(m-1) A =. (x ER_elo_ y) M 10 }}
-,. 2200 (30 adopt) 2150
