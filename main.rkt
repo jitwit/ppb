@@ -287,12 +287,12 @@
                 who
                 (string-join (map piece->string (available-pieces)) ", ")))
        ('("?lineup")
-        (format "~a the current lineup: ~a"
+        (format "~a the current lineup -- ~a"
                 who
                 (string-join (map (lambda (p.w)
                                     (format "~a : ~a"
-                                            (piece->string (car p.w))
-                                            (cdr p.w)))
+                                            (cdr p.w)
+                                            (piece->string (car p.w))))
                                   (marbles-lineup))
                              " | ")))
        ('("?reset")
@@ -411,7 +411,8 @@
 (define (main)
   (run-it 1))
 
-;; (main)
+(main)
+
 ;; #(struct:irc-message #f "tmi.twitch.tv" "RECONNECT\r" () ":tmi.twitch.tv RECONNECT\r")
 
 ; error reading from stream port
