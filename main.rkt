@@ -177,7 +177,7 @@
     ("?reset" . "?reset -- (mod only) reset irl marbles")
     ("?help" . "?help <command> -- information about <command>")
     ("?commands" . "?commands -- list of available commands. type ?help <command> to get information about <command>")
-    ("?adopt <elo-1> <elo-2> <n>" . "the probability that <elo-1> can adopt <elo-2> in a match of length <n>")))
+    ("?adopt" . "?adopt <elo-1> <elo-2> <n> -- the probability that <elo-1> can adopt <elo-2> in a match of length <n>")))
 
 ;; take arguments to ?who command and figure out piece
 (define (arguments->piece args)
@@ -330,6 +330,8 @@
        ('("?mona") "spenny11Mona spenny11Mona spenny11Mona spenny11Mona spenny11Mona")
        ('("?pronouns") "it/it")
        ('("piss!play") "i adore piss!play")
+       (`("Hey" "@piss_pig_bot" . ,args)
+        (format "i'm doing ok! hopefully things are going well for you, ~a?" who))
        (_ #f))) ;; unrecognized command/not applicable
     (_ #f))) ;; other types of messages
 
@@ -346,6 +348,12 @@
        (cdr (assq 'first-msg (irc-message-tags message))))
      (and (equal? first "1")
           (cond ((string-contains? what "bigfollows")
+                 (thread
+                  (lambda ()
+                    (sleep 5)
+                    (irc-send-message (twitch-connection) where
+                                      (format "/ban ~a"
+                                              who))))
                  "yes baby, give me fame and fortune")
                 (else (format "how do you do, ~a?" who)))))
     (_ #f)))
