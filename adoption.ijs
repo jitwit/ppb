@@ -5,15 +5,12 @@ NB. Elo x and y.
 E =: 1 % 1 + 10 ^ 400 %~ -~
 
 NB. markov chain matrix representing state of adoption match.
-NB. M_ij : 1 if i=j=n
-NB.        p if i+1=j
-NB.        1-p if j=0, i<n
-NB.        0 otherwise
-w =: * (=<:)"0/~ @ i.
-l =:  -.@[ ,. 0 $~ ],<:@]
-a =: 1 ,~ 0 #~ <:
-m =: }: @: (l + w) , a@]
-M =: m >:
+NB. M_ij :
+w =: * (=<:)"0/~ @ i.             NB. p if i+1=j
+a =: <:@*: = i.@,~                NB. 1 if i=j=n
+l =: -.@[ * 1 (|.!.0) 0=]|i.@,~@] NB. 1-p if j=0, i<n
+m =: w + l + a@]                  NB. sum / 0 otherwise
+M =: m >:                         NB. m with proper dimensions
 
 NB. x m adopt y -- probability that x can adopt y in a match of m games.
 A =: {{ {: {. A&(+/ . *)^:(m-1) A =. (x E y) M 10 }}

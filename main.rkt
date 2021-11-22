@@ -144,8 +144,7 @@
      read)))
 
 ;; network connection to twitch irc network
-(define twitch-connection
-  (make-parameter #f))
+(define twitch-connection #f)
 
 ;; semaphore to protect state among threads
 (define irl-semaphore
@@ -351,9 +350,8 @@
                  (thread
                   (lambda ()
                     (sleep 5)
-                    (irc-send-message (twitch-connection) where
-                                      (format "/ban ~a"
-                                              who))))
+                    (irc-send-message twitch-connection where
+                                      (format "/ban ~a" who))))
                  "yes baby, give me fame and fortune")
                 (else (format "how do you do, ~a?" who)))))
     (_ #f)))
@@ -378,16 +376,16 @@
      (define greeting
        (greeting-message message))
      (when response
-       (irc-send-message (twitch-connection) where response))
+       (irc-send-message twitch-connection where response))
      (when greeting
-       (irc-send-message (twitch-connection) where greeting)))
+       (irc-send-message twitch-connection where greeting)))
     ;; give shoutouts
     ((irc-message tags _ "USERNOTICE" `(,where) _)
      (match (assoc 'msg-id tags)
        ('(msg-id . "raid")
         (define response (format "!so ~a" (cdr (assoc 'display-name tags))))
         (sleep 2) ;; so things don't seem too quick?
-        (irc-send-message (twitch-connection) where response))
+        (irc-send-message twitch-connection where response))
        (_ #f)))
     (_ (void))))
 
@@ -402,7 +400,7 @@
                  #:ssl 'auto
                  #:password (string-append "oauth:" *oauth-token*)))
   (sync ready)
-  (twitch-connection c)
+  (set! twitch-connection c)
   (irc-send-command c "CAP REQ" ":twitch.tv/commands")
   (irc-send-command c "CAP REQ" ":twitch.tv/tags")
   (irc-join-channel c (string-append "#" *username*))
@@ -413,7 +411,7 @@
 (define (gogo)
   (let loop ()
     (define message
-      (async-channel-get (irc-connection-incoming (twitch-connection)))) 
+      (async-channel-get (irc-connection-incoming twitch-connection)))
     (thread (thunk (respond-to-message message)))
     (loop)))
 
