@@ -59,11 +59,6 @@
 (define prioritized-pieces
   '(p n b r q k P N B R Q K))
 
-(define (remove-at name)
-  (if (and (non-empty-string? name) (eqv? #\@ (string-ref name 0)))
-      (substring name 1)
-      name))
-
 (define names.pieces
   (map swap pieces.names))
 
@@ -82,16 +77,16 @@
 (define (assigned-pieces)
   (filter lookup-piece pieces))
 
+;; list of pieces that haven't been assigned
+(define (available-pieces)
+  (filter (compose not lookup-piece) pieces))
+
 ;; sorted list of assignements
 (define (marbles-lineup)
   (filter-map (lambda (x)
                 (let ((pp (lookup-piece x)))
                   (and pp (cons x pp))))
               pieces))
-
-;; list of pieces that haven't been assigned
-(define (available-pieces)
-  (filter (compose not lookup-piece) pieces))
 
 ;; add an entry to the participants table unless there are conflicts
 (define (add-participant who piece)
@@ -282,7 +277,7 @@
         (when (or (is-moderator? message)
                   (is-room-owner? message))
           (let* ((piece (random-piece))
-                 (result (add-participant who piece)))
+                 (result (add-participant (remove-at who) piece)))
             (match result
               ('marbles-full
                (format "~a irl marbbies is full" who))
@@ -337,7 +332,9 @@
 (define (message-tag tag message)
   (assoc tag (irc-message-tags message)))
 
-;; ;; "Want to become famous? Buy followers and viewers on bigfollows .com"
+;; "Want to become famous? Buy followers and viewers on bigfollows .com"
+;; Twitch Viewbot Program - do up to 1000 online on any stream! 49$, lifetime. Discord - Viewbot#0001
+
 (define (greeting-message message)
   (match message
     ((irc-message tags _ "PRIVMSG" `(,where ,what)  _)
@@ -349,10 +346,12 @@
           (cond ((string-contains? what "bigfollows")
                  (thread
                   (lambda ()
-                    (sleep 5)
+                    (sleep 10)
                     (irc-send-message twitch-connection where
                                       (format "/ban ~a" who))))
                  "yes baby, give me fame and fortune")
+                ((string-contains? what "Twitch Viewbot Program")
+                 (format "/ban ~a" who))
                 (else (format "how do you do, ~a?" who)))))
     (_ #f)))
 
