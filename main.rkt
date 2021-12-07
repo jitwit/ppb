@@ -127,6 +127,32 @@
     (and (> n 0)
          (list-ref ps (random n)))))
 
+(define (reshuffle-pieces)
+  (define-values (s1 s2)
+    (partition (lambda (x)
+                 (member (car x) prioritized-pieces))
+               (marbles-lineup)))
+  (define s3
+    (lset-difference eq? prioritized-pieces (map car s1)))
+  (cond ((or (null? s2) (null? s3)) 'nothing-to-do)
+        (else
+         (set! participants
+               (make-hash (append s1
+                                  (map cons s3 (map cdr (take s2 (length s3))))
+                                  (drop s2 (length s3)))))
+         'reshuffled-lineup)))
+
+(define (test-reshuffle)
+  (for-each (lambda (x)
+              (add-participant x (random-piece)))
+            '("a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" "n"))
+  (write (marbles-lineup)) (newline)
+  (remove-participant "b")
+  (write (reshuffle-pieces)) (newline)
+  (remove-participant "m")
+  (write (reshuffle-pieces)) (newline)  
+  (write (marbles-lineup)) (newline))
+
 ;; configuration to log in to twitch
 (define *oauth-token*
   (symbol->string
@@ -165,6 +191,7 @@
     ("?kick" . "?kick <user> -- (mod only) boot <user> from the game")
     ("?who" . "?who <piece> -- owner of <piece>, where <piece> is either in fen or in full (e.g. n for black knight, R2 for white rook2)")
     ("?what" . "?what [person] -- what piece you have or optionally ask what [person]'s piece is")
+    ("?reshuffle" . "?reshuffle -- (mod only) randomly assign pieces from set 1 to people with pieces from set 2 if possible.")
     ("?pieces" . "?pieces -- list of assigned pieces")
     ("?pieces-free" . "?pieces-free -- list of pieces not yet assigned")
     ("?lineup" . "?lineup -- pieces & people")
@@ -243,6 +270,10 @@
                       (and piece
                            (piece->string piece)))
               (format "~a you are not in the current irl marbbies" who))))
+       ('("?reshuffle")
+        (match (reshuffle-pieces)
+          ('nothing-to-do "no reshuffling was necessary")
+          ('reshuffled-lineup "lineup was reshuffled")))
        (`("?what" ,pisser)
         (let* ((pisser (remove-at pisser))
                (piece (participant-piece pisser)))
@@ -283,16 +314,13 @@
                (format "~a irl marbbies is full" who))
               (_ #f)))))
        ('("?pieces")
-        (format "~a ~a"
-                who
+        (format "~a"
                 (string-join (map piece->string (assigned-pieces)) ", ")))
        ('("?pieces-free")
-        (format "~a remaining pieces: ~a"
-                who
+        (format "remaining pieces: ~a"
                 (string-join (map piece->string (available-pieces)) ", ")))
        ('("?lineup")
-        (format "~a the current lineup -- ~a"
-                who
+        (format "the current lineup -- ~a"
                 (string-join (map (lambda (p.w)
                                     (format "~a : ~a"
                                             (cdr p.w)
@@ -321,7 +349,11 @@
         (format "~a try \"?help <command>\" or \"?commands\"" who))
        ('("!clawee") "what a shit app")
        ('("?clawee") "what a shit app")
-       ('("?mona") "spenny11Mona spenny11Mona spenny11Mona spenny11Mona spenny11Mona")
+       ('("?mona")
+        (string-join (make-list (+ 10 (random 5)) "spenny11Mona")))
+       ('("?gorey")
+        (string-join (make-list (+ 10 (random 5)) "spenny11Gorey")))
+       
        ('("?pronouns") "it/it")
        ('("piss!play") "i adore piss!play")
        (`("Hey" "@piss_pig_bot" . ,args)
@@ -382,7 +414,8 @@
     ((irc-message tags _ "USERNOTICE" `(,where) _)
      (match (assoc 'msg-id tags)
        ('(msg-id . "raid")
-        (define response (format "!so ~a" (cdr (assoc 'display-name tags))))
+        (define response (format "!so ~a"
+                                 (cdr (assoc 'display-name tags))))
         (sleep 2) ;; so things don't seem too quick?
         (irc-send-message twitch-connection where response))
        (_ #f)))
