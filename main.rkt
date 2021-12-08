@@ -249,7 +249,7 @@
                (match-length (string->number match-length)))
           (and elo1 elo2 match-length
                (integer? match-length)
-               (<= 0 match-length 10000)
+               ;; (<= 0 match-length 10000)
                (format "adoption probability: ~a"
                        (adoption elo1 elo2 match-length)))))
        (`("?kick" ,pisser)
@@ -474,6 +474,7 @@
 (main)
 
 
+
 ;; #(struct:irc-message #f "tmi.twitch.tv" "RECONNECT\r" () ":tmi.twitch.tv RECONNECT\r")
 
 ; error reading from stream port
@@ -483,3 +484,10 @@
 ;   hostname: irc.chat.twitch.tv
 ;   port number: 6697
 ;   system error: Name or service not known; gai_err=-2
+
+;; (first-msg . "1")
+;; #(struct:irc-message ((badges . "glhf-pledge/1") (client-nonce . "0b0ed6c2867b10d3b4f77397497b51cc") (color . "#0000FF") (display-name . "deveshwarrocks1234") (first-msg . "1") (id . "272c36ab-092b-467d-9635-7709bb3b0f54") (mod . "0") (room-id . "500504795") (subscriber . "0") (tmi-sent-ts . "1636430956064") (turbo . "0") (user-id . "265456604")) "deveshwarrocks1234!deveshwarrocks1234@deveshwarrocks1234.tmi.twitch.tv" "PRIVMSG" ("#spennythompson" "!viewerbattles\r") "@badge-info=;badges=glhf-pledge/1;client-nonce=0b0ed6c2867b10d3b4f77397497b51cc;color=#0000FF;display-name=deveshwarrocks1234;emotes=;first-msg=1;flags=;id=272c36ab-092b-467d-9635-7709bb3b0f54;mod=0;room-id=500504795;subscriber=0;tmi-sent-ts=1636430956064;turbo=0;user-id=265456604;user-type= :deveshwarrocks1234!deveshwarrocks1234@deveshwarrocks1234.tmi.twitch.tv PRIVMSG #spennythompson :!viewerbattles\r")
+
+;; #(struct:irc-message ((badge-info . "founder/7") (badges . "founder/0,sub-gifter/25") (color . "#008000") (display-name . "latinum_blonde") (id . "96a7794e-9202-4255-9502-2aa896931992") (login . "latinum_blonde") (mod . "0") (msg-id . "bitsbadgetier") (msg-param-threshold . "10000") (room-id . "500504795") (subscriber . "1") (system-msg . "bits\\sbadge\\stier\\snotification") (tmi-sent-ts . "1636521654972") (user-id . "570223165")) "tmi.twitch.tv" "USERNOTICE" ("#spennythompson\r") "@badge-info=founder/7;badges=founder/0,sub-gifter/25;color=#008000;display-name=latinum_blonde;emotes=;flags=;id=96a7794e-9202-4255-9502-2aa896931992;login=latinum_blonde;mod=0;msg-id=bitsbadgetier;msg-param-threshold=10000;room-id=500504795;subscriber=1;system-msg=bits\\sbadge\\stier\\snotification;tmi-sent-ts=1636521654972;user-id=570223165;user-type= :tmi.twitch.tv USERNOTICE #spennythompson\r")
+
+
