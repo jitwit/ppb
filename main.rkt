@@ -11,7 +11,7 @@
     (n . "black knight")
     (b . "black bishop")
     (r . "black rook")
-    (q . "black queen")
+;;    (q . "black queen")
     (k . "black king")
     (P . "white pawn")
     (N . "white knight")
@@ -150,7 +150,7 @@
   (remove-participant "b")
   (write (reshuffle-pieces)) (newline)
   (remove-participant "m")
-  (write (reshuffle-pieces)) (newline)  
+  (write (reshuffle-pieces)) (newline)
   (write (marbles-lineup)) (newline))
 
 ;; configuration to log in to twitch
@@ -297,12 +297,10 @@
                                       ", ")))
                 (else
                  (if pig
-                     (format "~a ~a has the ~a"
-                             who
+                     (format "~a has the ~a"
                              pig
                              (piece->string piece))
-                     (format "~a the ~a isn't taken"
-                             who
+                     (format "the ~a isn't taken"
                              (piece->string piece)))))))
        (`("?force" ,who)
         (when (or (is-moderator? message)
@@ -350,14 +348,27 @@
        ('("!clawee") "what a shit app")
        ('("?clawee") "what a shit app")
        ('("?mona")
-        (string-join (make-list (+ 10 (random 5)) "spenny11Mona")))
+        (string-join (make-list (+ 5 (random 10)) "spenny11Mona")))
        ('("?gorey")
-        (string-join (make-list (+ 10 (random 5)) "spenny11Gorey")))
+        (string-join (make-list (+ 5 (random 10)) "spenny11Gorey")))
        
        ('("?pronouns") "it/it")
        ('("piss!play") "i adore piss!play")
+       ('("!1800")
+        "error: did you mean \"!1400\"?")
+       ('("!1400")
+        "I will try to grind to 1400 blitz on stream starting within a week and ending when i reach 1400 chess.com blitz")
+       ('("!2200")
+        "Fuck ya, go Salty!")
+       ('("!goreydates")
+        "Goreyhole will be speed dating viewers on Friday December 26th at 2 PM PST. Be sure to join the !discord !")
+       ('("!racer")
+        "no more puzzle racer? crying and unfollowing. no whiffs of this channel again.")
+       ;; ('("!followers")
+       ;;  "Just followed to say I hate it when channels bribe followers by making you follow just to chat. For small channels it kills interactivity. It never works. It's for popular channels that need chat control, not channels with 10 viewers. Just followed to post this. Unfollowing and blocking. I hope I never get even a whiff of this channel again. Bye.")
        (`("Hey" "@piss_pig_bot" . ,args)
         (format "i'm doing ok! hopefully things are going well for you, ~a?" who))
+;;       (`("?user" ,arg) (format "/user ~a" arg))
        (_ #f))) ;; unrecognized command/not applicable
     (_ #f))) ;; other types of messages
 
@@ -375,7 +386,7 @@
      (define first
        (cdr (assq 'first-msg (irc-message-tags message))))
      (and (equal? first "1")
-          (cond ((string-contains? what "bigfollows")
+          (cond ((string-contains? what "Buy followers")
                  (thread
                   (lambda ()
                     (sleep 10)
@@ -472,6 +483,7 @@
   (run-it 1))
 
 (main)
+
 
 
 
