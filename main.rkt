@@ -62,6 +62,8 @@
 (define names.pieces
   (map swap pieces.names))
 
+(define game-queue '())
+
 (define pieces
   (map car pieces.names))
 
@@ -117,6 +119,30 @@
 
 (define (reset-marbles)
   (set! participants (make-hash)))
+
+(define (enqueue who)
+  (cond ((member who game-queue)
+         'already-there)
+        (else
+         (set! game-queue
+               `(,@game-queue ,who))
+         'ok)))
+
+(define (dequeue who)
+  (set! game-queue
+        (filter (lambda (x)
+                  (not (equal? x who)))
+                game-queue)))
+
+(define (popqueue)
+  (match game-queue
+    (`(,a . ,bc)
+     (set! game-queue bc)
+     a)
+    (_ #f)))
+
+(define (reset-queue)
+  (set! game-queue '()))
 
 ;; randomly return one of the available pieces or #f if none are left
 (define (random-piece)
@@ -187,7 +213,12 @@
 ;; list of commands
 (define commands
   '(("?play" . "?play -- join marbles")
+    ("?join" . "?join -- join the game queue")
+    ("?next" . "?next -- advance the game queue")
     ("?leave" . "?leave -- quit marbles")
+    ("?list" . "?list -- see the game queue")
+    ("?clear" . "?clear -- reset the game queue")
+    ("?quit" . "?quit -- quit the game queue")
     ("?kick" . "?kick <user> -- (mod only) boot <user> from the game")
     ("?who" . "?who <piece> -- owner of <piece>, where <piece> is either in fen or in full (e.g. n for black knight, R2 for white rook2)")
     ("?what" . "?what [person] -- what piece you have or optionally ask what [person]'s piece is")
@@ -243,6 +274,34 @@
        ('("?leave")
         (remove-participant who)
         (format "~a left the game" who))
+       ('("?next")
+        (cond ((is-moderator? message)
+               (let ((next (popqueue)))
+                 (if next
+                     (format "next up: ~a" next)
+                     "game queue is empty")))
+              (else
+               "command only available to mods")))
+       ('("?join")
+        (match (enqueue who)
+          ('ok
+           (format "~a joined the queue" who))
+          ('already-there
+           (format "~a you're already in the queue" who))))
+       ('("?clear")
+        (cond ((is-moderator? message)
+               (reset-queue)
+               "game queue was reset")
+              (else
+               "command only available to mods")))
+       (`("?join!" ,who)
+        (enqueue who)
+        (format "~a joined the queue" who))
+       ('("?list")
+        (format "play with streamer queue -- ~a" (string-join game-queue ", ")))
+       ('("?quit")
+        (dequeue who)
+        (format "~a left the queue" who))
        (`("?adopt" ,elo1 ,elo2 ,match-length)
         (let* ((elo1 (string->number elo1))
                (elo2 (string->number elo2))
