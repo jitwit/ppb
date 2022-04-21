@@ -11,7 +11,7 @@
     (n . "black knight")
     (b . "black bishop")
     (r . "black rook")
-;;    (q . "black queen")
+    (q . "black queen")
     (k . "black king")
     (P . "white pawn")
     (N . "white knight")
@@ -282,6 +282,8 @@
                      "game queue is empty")))
               (else
                "command only available to mods")))
+       ('("?shill")
+        "https://www.chess.com/membership?ref_id=14665398")
        ('("?join")
         (match (enqueue who)
           ('ok
@@ -403,21 +405,24 @@
                     who command)))
        (`("?help")
         (format "~a try \"?help <command>\" or \"?commands\"" who))
-       (`("!rohan...")
-        "i might have a rich dad but he makes me earn everything i have. dont get anything for free. everything has terms and conditions. i have worked and done internships. i do go to school, dont do drugs, get good grades, have student council roles")
+       ;; (`("!rohan")
+       ;;  "i might have a rich dad but he makes me earn everything i have. dont get anything for free. everything has terms and conditions. i have worked and done internships. i do go to school, dont do drugs, get good grades, have student council roles")
+       ('("l") "l")
        ('("!clawee") "what a shit app")
        ('("?clawee") "what a shit app")
        ('("?mona")
         (string-join (make-list (+ 5 (random 10)) "spenny11Mona")))
        ('("?gorey")
         (string-join (make-list (+ 5 (random 10)) "spenny11Gorey")))
+       ('("?no-more")
+        (string-join (make-list (+ 5 (random 10)) "spenny11NoMosquito")))
        ('("?pronouns") "it/it")
        ('("piss!play") "i adore piss!play")
-       ('("!followers")
-        "Just followed to say I hate it when channels bribe followers by making you follow just to chat. For small channels it kills interactivity. It never works. It's for popular channels that need chat control, not channels with 10 viewers. Just followed to post this. Unfollowing and blocking. I hope I never get even a whiff of this channel again. Bye.") 
-      (`("Hey" "@piss_pig_bot" . ,args)
+       ;; ('("!followers")
+       ;;  "Just followed to say I hate it when channels bribe followers by making you follow just to chat. For small channels it kills interactivity. It never works. It's for popular channels that need chat control, not channels with 10 viewers. Just followed to post this. Unfollowing and blocking. I hope I never get even a whiff of this channel again. Bye.") 
+       (`("Hey" "@piss_pig_bot" . ,args)
         (format "i'm doing ok! hopefully things are going well for you, ~a?" who))
-;;       (`("?user" ,arg) (format "/user ~a" arg))
+       ;;       (`("?user" ,arg) (format "/user ~a" arg))
        (_ #f))) ;; unrecognized command/not applicable
     (_ #f))) ;; other types of messages
 
@@ -435,7 +440,8 @@
      (define first
        (cdr (assq 'first-msg (irc-message-tags message))))
      (and (equal? first "1")
-          (cond ((string-contains? what "Buy followers")
+          (cond ((and (string-contains? what "followers")
+                      (string-contains? what "primes"))
                  (thread
                   (lambda ()
                     (sleep 10)
@@ -552,3 +558,4 @@
 ;; #(struct:irc-message ((badge-info . "founder/7") (badges . "founder/0,sub-gifter/25") (color . "#008000") (display-name . "latinum_blonde") (id . "96a7794e-9202-4255-9502-2aa896931992") (login . "latinum_blonde") (mod . "0") (msg-id . "bitsbadgetier") (msg-param-threshold . "10000") (room-id . "500504795") (subscriber . "1") (system-msg . "bits\\sbadge\\stier\\snotification") (tmi-sent-ts . "1636521654972") (user-id . "570223165")) "tmi.twitch.tv" "USERNOTICE" ("#spennythompson\r") "@badge-info=founder/7;badges=founder/0,sub-gifter/25;color=#008000;display-name=latinum_blonde;emotes=;flags=;id=96a7794e-9202-4255-9502-2aa896931992;login=latinum_blonde;mod=0;msg-id=bitsbadgetier;msg-param-threshold=10000;room-id=500504795;subscriber=1;system-msg=bits\\sbadge\\stier\\snotification;tmi-sent-ts=1636521654972;user-id=570223165;user-type= :tmi.twitch.tv USERNOTICE #spennythompson\r")
 
 
+;; #(struct:irc-message #f "tmi.twitch.tv" "RECONNECT\r" () ":tmi.twitch.tv RECONNECT\r")
