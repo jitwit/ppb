@@ -95,7 +95,7 @@
   (cond ((member who (hash-values participants))
          'already-assigned)
         ((not piece) ;; was #f from randomly getting a piece
-         'marbles-full)
+        'marbles-full)
         ((not (lookup-piece piece))
          (hash-set! participants piece who) 'ok)
         (else 'piece-taken)))
@@ -422,6 +422,10 @@
        ;;  "Just followed to say I hate it when channels bribe followers by making you follow just to chat. For small channels it kills interactivity. It never works. It's for popular channels that need chat control, not channels with 10 viewers. Just followed to post this. Unfollowing and blocking. I hope I never get even a whiff of this channel again. Bye.") 
        (`("Hey" "@piss_pig_bot" . ,args)
         (format "i'm doing ok! hopefully things are going well for you, ~a?" who))
+       (`("how" "do" "you" "do," "piss_pig_bot_?")
+        (format "how do you do, ~a?" who))
+       (`("how" "do" "you" "do," "@piss_pig_bot_ ?")
+        (format "how do you do, ~a?" who))
        ;;       (`("?user" ,arg) (format "/user ~a" arg))
        (_ #f))) ;; unrecognized command/not applicable
     (_ #f))) ;; other types of messages
