@@ -2,6 +2,7 @@
 
 (require racket/async-channel
          (except-in srfi/1 delete)
+         net/http-easy
 
          "irc.rkt"
          "outils.rkt")
@@ -324,6 +325,12 @@
 	  (format "~a's pp is ~a inches around"
 		  person
 		  (/ (floor (* 10 (ppn 3.66 1))) 10))))
+       (`("?truth" . ,args)
+	(let* ((channel (if (null? args) where (string-join args)))
+               (result (chatter-count channel)))
+	  (format "truthfully, there are ~a viewers in ~a"
+                  (lookup result 'chatter_count)
+		  channel)))
        (`("?kick" ,pisser)
         (let ((pisser (remove-at pisser)))
           (cond ((or (is-moderator? message)
@@ -477,6 +484,12 @@
 	  (* var
 	     (sqrt (* -2 (log (- 1 (random)))))
 	     (cos (* 2 pi (random)))))))
+
+(define (chatter-count who)
+  (let ((response (get (string-append "https://tmi.twitch.tv/group/user/"
+                                      (string-downcase who)
+                                      "/chatters"))))
+    (response-json response)))
 
 ;; respond to applicable messages
 (define (respond-to-message message)
