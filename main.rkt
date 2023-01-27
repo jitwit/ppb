@@ -95,7 +95,7 @@
   (cond ((member who (hash-values participants))
          'already-assigned)
         ((not piece) ;; was #f from randomly getting a piece
-        'marbles-full)
+         'marbles-full)
         ((not (lookup-piece piece))
          (hash-set! participants piece who) 'ok)
         (else 'piece-taken)))
@@ -314,6 +314,16 @@
                ;; (<= 0 match-length 10000)
                (format "adoption probability: ~a"
                        (adoption elo1 elo2 match-length)))))
+       (`("!ppn" . ,args)
+	(let ((person (if (null? args) who (string-join args))))
+	  (format "~a's pp is ~a inches long"
+		  person
+		  (/ (floor (* 10 (ppn 6 1.4))) 10))))
+       (`("!ppg" . ,args)
+	(let ((person (if (null? args) who (string-join args))))
+	  (format "~a's pp is ~a inches around"
+		  person
+		  (/ (floor (* 10 (ppn 3.66 1))) 10))))
        (`("?kick" ,pisser)
         (let ((pisser (remove-at pisser)))
           (cond ((or (is-moderator? message)
@@ -422,10 +432,6 @@
        ;;  "Just followed to say I hate it when channels bribe followers by making you follow just to chat. For small channels it kills interactivity. It never works. It's for popular channels that need chat control, not channels with 10 viewers. Just followed to post this. Unfollowing and blocking. I hope I never get even a whiff of this channel again. Bye.") 
        (`("Hey" "@piss_pig_bot" . ,args)
         (format "i'm doing ok! hopefully things are going well for you, ~a?" who))
-       (`("how" "do" "you" "do," "piss_pig_bot_?")
-        (format "how do you do, ~a?" who))
-       (`("how" "do" "you" "do," "@piss_pig_bot_ ?")
-        (format "how do you do, ~a?" who))
        ;;       (`("?user" ,arg) (format "/user ~a" arg))
        (_ #f))) ;; unrecognized command/not applicable
     (_ #f))) ;; other types of messages
@@ -463,6 +469,14 @@
       (system
        (format "jconsole adoption.ijs -js \"exit 0 [ echo ~a (~a adopt) ~a\""
                x m y)))))
+
+(define (ppn mean var)
+  (define pi (* 2 (acos 0)))
+  (max 1
+       (+ mean
+	  (* var
+	     (sqrt (* -2 (log (- 1 (random)))))
+	     (cos (* 2 pi (random)))))))
 
 ;; respond to applicable messages
 (define (respond-to-message message)
@@ -507,6 +521,7 @@
   (irc-send-command c "CAP REQ" ":twitch.tv/tags")
   (irc-join-channel c (string-append "#" *username*))
   (irc-join-channel c "#spennythompson")
+  (irc-join-channel c "#badchessgoodvibes")
   (irc-join-channel c "#gorey_hole"))
 
 ;; main loop
