@@ -1,6 +1,6 @@
 NB. probability of adoption
 
-NB. x E y -- expected score of game between player's of Elo x and y.
+NB. x E y -- expected score of game between players of Elo x and y.
 E =: 1 % 1 + 10 ^ 400 %~ -~
 
 NB. markov chain matrix representing state of adoption match.
@@ -17,3 +17,5 @@ P =: {{ +/ . */ d # (+/ . *~)^:(i.-#d) y [ d=.#:x }}
 NB. x m adopt y -- probability that x can adopt y in a match of m games.
 A =: {{ {: {. m P (x E y) M 10 }}
 adopt =: A :: 'bad input'
+
+1300 (20 adopt) 1000
