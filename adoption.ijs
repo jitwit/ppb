@@ -17,5 +17,3 @@ P =: {{ +/ . */ d # (+/ . *~)^:(i.-#d) y [ d=.#:x }}
 NB. x m adopt y -- probability that x can adopt y in a match of m games.
 A =: {{ {: {. m P (x E y) M 10 }}
 adopt =: A :: 'bad input'
-
-1300 (20 adopt) 1000
