@@ -567,8 +567,7 @@
 (define (main)
   (run-it 1))
 
-;; (main)
-
+(main)
 
 
 

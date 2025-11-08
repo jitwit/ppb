@@ -51,56 +51,31 @@
 (define (send-message message)
   (irc-send-message twitch-connection (string-append "#" location) message))
 
-(define peepin
-  "domina105RINGOPEEPINFROMBLIND")
-(define bunny
-  "mcknzRingoBunny")
-(define cat-jam
-  "badche2CatJAM")
-(define side-eye
-  "badche2RingoSideEye")
-(define ringo-bus
-  "domina105RINGOBUS")
-(define ringo-cute
-  "domina105RINGOCUTE")
-(define ringo-rip
-  "domina105RESTINPEACERINGO")
-(define golden-boi
-  "domina105RINGOGOLDENBOI")
-(define ringolicious
-  "domina105RINGOLICIOUS")
-(define rolly-boi
-  "tinxRINGOROLLYBOI")
-(define uwu
-  "domina105RINGOUWUWUWUUWUWUW")
-(define irl-ezwin
-  "badche2RINGOLIFEIMITATESART")
-(define ezwin
-  "domina105RINGOEZWINGETREKT")
-(define cooked
-  "domina105COOKED")
-(define founding-father
-  "domina105FOUNDINGFATHER")
-(define ahoy
-  "domina105CRABAHOY")
-(define crab-sad
-  "domina105SAD")
-(define menacing
-  "domina105MENACING")
-(define luci-dance
-  "tinxDANCE")
-(define ringo-bunny
-  "mcknzRingoBunny")
-(define rare-boi
-  "domina105RARELIMITEDRINGBUNNY")
-(define golden-card
-  "domina105GOLDENCARD")
-(define tot-pls
-  "domina105TOTPLS")
-(define work-call
-  "domina105WORKCALL")
-(define angi
-  "tinxANGI")
+(define peepin      "domina105RINGOPEEPINFROMBLIND")
+(define bunny       "mcknzRingoBunny")
+(define cat-jam     "badche2CatJAM")
+(define side-eye    "badche2RingoSideEye")
+(define ringo-bus   "domina105RINGOBUS")
+(define ringo-cute  "domina105RINGOCUTE")
+(define ringo-rip   "domina105RESTINPEACERINGO")
+(define golden-boi  "domina105RINGOGOLDENBOI")
+(define rolly-boi   "tinxRINGOROLLYBOI")
+(define uwu         "domina105RINGOUWUWUWUUWUWUW")
+(define irl-ezwin   "badche2RINGOLIFEIMITATESART")
+(define ezwin       "domina105RINGOEZWINGETREKT")
+(define cooked      "domina105COOKED")
+(define ahoy        "domina105CRABAHOY")
+(define crab-sad    "domina105SAD")
+(define menacing    "domina105MENACING")
+(define luci-dance  "tinxDANCE")
+(define ringo-luci  "tinxRINGOLUCI")
+(define feels-bad   "tinxFeelsBadMan")
+(define ringo-bunny "mcknzRingoBunny")
+(define rare-boi    "domina105RARELIMITEDRINGBUNNY")
+(define golden-card "domina105GOLDENCARD")
+(define tot-pls     "domina105TOTPLS")
+(define work-call   "domina105WORKCALL")
+(define angi        "tinxANGI")
 
 (define (quick-fire message n)
   (for ((i (iota n)))
@@ -156,10 +131,13 @@
 
 (define (go)
   (boot)
-  ;; (join-channel "DOMINANTCRAB")
-  (join-channel "TinaPalooza"))
+  (join-channel "DOMINANTCRAB")
+;; (join-channel "spennythompson")
+;;  (join-channel "TinaPalooza")
+  )
 
-(go)
+;; (go)
+
 
 
 ;; Unicode Character “⠀” (U+2800) --- how diesiraeswe gets whitespace
